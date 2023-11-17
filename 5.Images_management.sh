@@ -185,3 +185,23 @@ ip addr add 192.168.15.5/24 dev v-net-0
 ip addr add 192.168.15.1/24 dev veth-red
 ip addr add 192.168.15.2/24 dev veth-blue
 ip netns exec red ping blue
+
+docker volume create testvol
+docker container run -itd --name test --volume testvol:/cedrickiama centos:7
+
+docker container exec -it test /bin/bash
+df -h
+
+docker container run -itd --name testagain --mount source=testvol,target=/cedrickiama centos:7
+docker container exec -it testagain /bin/bash
+
+docker volume create testvolro
+docker container run -itd --name testagainro --mount source=testvolro,target=/cedrickiama,readonly centos:7
+
+mkdir /data
+docker container run -itd --mount type=bind,source=/data,target=/dir_on_container centos:7
+
+
+
+
+mkdir /
