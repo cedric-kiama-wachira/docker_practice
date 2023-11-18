@@ -159,4 +159,11 @@ docker service update --config-rm nginx-conf --config-add nginc-new.conf nginx
 
 
 # Practice - creation of overlay network
+docker network create --driver=overlay cedric_nw
+docker network inspect cedric_nw --pretty
 
+docker service create --name ingresservice  --publish published=80,target=80 --replicas=2 --network=cedric_nw redis:alpine
+
+docker node ls
+
+docker service create --name=hostservice --publish published=82,target=80,mode=host --network=cedric_nw --replicas=7 postgres
