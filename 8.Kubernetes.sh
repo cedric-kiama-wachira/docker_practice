@@ -136,6 +136,38 @@ sudo apt-get update
 sudo apt-get install -y kubelet kubeadm kubectl
 sudo apt-mark hold kubelet kubeadm kubectl
 
+# Install CNI
+git clone https://github.com/containernetworking/plugins.git
+
+cd plugins/
+./build_linux.sh
+mkdir -p /etc/cni/net.d
+cat >/etc/cni/net.d/10-mynet.conf <<EOF
+{
+	"cniVersion": "0.2.0",
+	"name": "mynet",
+	"type": "bridge",
+	"bridge": "cni0",
+	"isGateway": true,
+	"ipMasq": true,
+	"ipam": {
+		"type": "host-local",
+		"subnet": "10.22.0.0/16",
+		"routes": [
+			{ "dst": "0.0.0.0/0" }
+		]
+	}
+}
+EOF
+
+cat >/etc/cni/net.d/99-loopback.conf <<EOF
+{
+	"cniVersion": "0.2.0",
+	"name": "lo",
+	"type": "loopback"
+}
+EOF
+
 # Install the load balancer
 
 sudo apt-get update 
@@ -170,7 +202,38 @@ sudo chown $(id -u):$(id -g) $HOME/.kube/config
 kubeadm config images list
 kubeadm config images pull --cri-socket unix:///var/run/cri-dockerd.sock
 
-sudo kubeadm init --apiserver-advertise-address=172.31.18.74 --control-plane-endpoint=51.112.18.14:80 --cri-socket unix:///var/run/cri-dockerd.sock
+kubeadm init --apiserver-advertise-address=172.31.30.56 --control-plane-endpoint=172.31.30.56 --cri-socket unix:///var/run/cri-dockerd.sock
+#Your Kubernetes control-plane has initialized successfully!
+
+#To start using your cluster, you need to run the following as a regular user:
+
+mkdir -p $HOME/.kube
+sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+sudo chown $(id -u):$(id -g) $HOME/.kube/config
+
+#Alternatively, if you are the root user, you can run:
+
+  export KUBECONFIG=/etc/kubernetes/admin.conf
+
+#You should now deploy a pod network to the cluster.
+#Run "kubectl apply -f [podnetwork].yaml" with one of the options listed at:
+#  https://kubernetes.io/docs/concepts/cluster-administration/addons/
+
+#You can now join any number of control-plane nodes by copying certificate authorities
+#and service account keys on each node and then running the following as root:
+
+kubeadm join 172.31.30.56:6443 --token sovv0o.cpvcckxrhohvbb2l --discovery-token-ca-cert-hash sha256:3bf21c0fa42ba4cce18250059a0ce04a0cfc3ab5ffc09dba2ccfde559f71b31a --control-plane 
+
+#Then you can join any number of worker nodes by running the following on each as root:
+kubeadm join 172.31.30.56:6443 --token sovv0o.cpvcckxrhohvbb2l --discovery-token-ca-cert-hash sha256:3bf21c0fa42ba4cce18250059a0ce04a0cfc3ab5ffc09dba2ccfde559f71b31a
+
+mkdir -p $HOME/.kube
+sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+sudo chown $(id -u):$(id -g) $HOME/.kube/config
+
+vi .profile
+export KUBECONFIG=/etc/kubernetes/admin.conf
+
 
 # Conformance Certificate
 wget https://github.com/vmware-tanzu/sonobuoy/releases/download/v0.57.1/sonobuoy_0.57.1_linux_amd64.tar.gz
@@ -197,7 +260,7 @@ kubectl create deployment nginx --image=nginx
 
 # Check created pods status and more information related to the pod
 kubectl get pods
-kubectl describe pod <pod_name>
+kubectl describe pod nginx-7854ff8877-xpf9x
 
 # Notes
 https://kubernetes.io/docs/concepts/
