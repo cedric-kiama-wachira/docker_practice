@@ -46,7 +46,6 @@ vi /etc/hosts && vi /etc/hostname
 3.29.177.171 DKN2
 3.29.190.232 DKN3
 3.29.70.34   DKN4
-
 3.28.93.144 DKCP1
 
 51.112.18.14 DKLB
@@ -125,27 +124,18 @@ TCP         ONBOUND/OUTBOUND    4789        Overlay network traffic
 TCP         ONBOUND/OUTBOUND    2375        HTTP unencrypted socket for remote management of containers
 TCP         ONBOUND/OUTBOUND    2376        HTTPS encrypted socket  for remote management of containers
 
-
-sudo apt-get update
-# apt-transport-https may be a dummy package; if so, you can skip that package
-sudo apt-get install -y apt-transport-https ca-certificates curl gpg
-curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.28/deb/Release.key | sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
-# This overwrites any existing configuration in /etc/apt/sources.list.d/kubernetes.list
-echo 'deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.28/deb/ /' | sudo tee /etc/apt/sources.list.d/kubernetes.list
-sudo apt-get update
-sudo apt-get install -y kubelet kubeadm kubectl
-sudo apt-mark hold kubelet kubeadm kubectl
-
 # Install CNI
 git clone https://github.com/containernetworking/plugins.git
+wget https://github.com/containernetworking/plugins/releases/download/v1.3.0/cni-plugins-linux-amd64-v1.3.0.tgz
 
 cd plugins/
 ./build_linux.sh
 mkdir -p /etc/cni/net.d
-cat >/etc/cni/net.d/10-mynet.conf <<EOF
+
+cat >/etc/cni/net.d/10-dk8net.conf <<EOF
 {
 	"cniVersion": "0.2.0",
-	"name": "mynet",
+	"name": "dk8net",
 	"type": "bridge",
 	"bridge": "cni0",
 	"isGateway": true,
@@ -167,6 +157,17 @@ cat >/etc/cni/net.d/99-loopback.conf <<EOF
 	"type": "loopback"
 }
 EOF
+
+sudo apt-get update
+# apt-transport-https may be a dummy package; if so, you can skip that package
+sudo apt-get install -y apt-transport-https ca-certificates curl gpg
+curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.28/deb/Release.key | sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+# This overwrites any existing configuration in /etc/apt/sources.list.d/kubernetes.list
+echo 'deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.28/deb/ /' | sudo tee /etc/apt/sources.list.d/kubernetes.list
+sudo apt-get update
+sudo apt-get install -y kubelet kubeadm kubectl
+sudo apt-mark hold kubelet kubeadm kubectl
+
 
 # Install the load balancer
 
@@ -202,7 +203,7 @@ sudo chown $(id -u):$(id -g) $HOME/.kube/config
 kubeadm config images list
 kubeadm config images pull --cri-socket unix:///var/run/cri-dockerd.sock
 
-kubeadm init --apiserver-advertise-address=172.31.30.56 --control-plane-endpoint=172.31.30.56 --cri-socket unix:///var/run/cri-dockerd.sock
+kubeadm init --apiserver-advertise-address=172.31.28.144 --control-plane-endpoint=172.31.28.144 --cri-socket=unix:///var/run/cri-dockerd.sock
 #Your Kubernetes control-plane has initialized successfully!
 
 #To start using your cluster, you need to run the following as a regular user:
