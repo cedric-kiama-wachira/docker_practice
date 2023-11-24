@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: myapp-deployment
+  labels:
+    tier: front-end
+    app: nginx
+spec:
+  selector:
+    matchLabels:
+      app: myapp
+  replicas: 3
+  template:
+    metadata:
+     name: nginx-2
+     labels:
+      app: myapp
+    spec:
+      containers:
+       - name: nginx
+         image: nginx
+
+# Rollout Commands
+# kubectl rollout status deployment/myapp-deployment
+# kubectl rollout history deployment/myapp-deployment
+
+# kubectl apply -f deployment-definition.yml

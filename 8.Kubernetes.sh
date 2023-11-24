@@ -340,3 +340,11 @@ spec:
 
 kubectl create -f pod-definition.yml
 
+vi rc-definition.yml
+# Minimum componenets for a definitation file
+apiVersion: v1
+kind:
+metadata:
+spec:
+
+

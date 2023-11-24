@@ -1,0 +1,26 @@
+#vi rc-definition.yml
+# Minimum componenets for a definitation file
+apiVersion: v1
+kind: ReplicationController
+metadata:
+  name: myapp-rc
+  labels:
+    app: myapp
+    type: front-end
+spec:
+  template:
+    metadata:
+      name: myapp-pod
+      labels:
+        app: myapp
+        type: front-end
+      spec:
+        containers:
+        - name: nginx-controller
+          image: nginx
+replicas: 3
+
+# kubectl create -f rc-definition.yml
+# kubectl get replicationcontroller
+# kubectl get pods
+

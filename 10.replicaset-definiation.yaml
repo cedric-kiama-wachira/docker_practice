@@ -1,0 +1,40 @@
+apiVersion: app/v1
+kind: ReplicaSet
+metadata:
+  name: myapp-replicaset
+  labels: 
+    app: myapp
+    type: front-end
+spec:
+ template: 
+
+  metadata: 
+   name: myapp-pod
+   labels:
+     app: myapp
+     type: front-end
+   spec:
+    containers:
+    - name: nginx-controller
+      image: nginx
+ replicas: 3 # If we change the number of replicas to have, we can use the commands from line 4,5, 6 below can be used
+ selector: front-end
+
+# kubectl create -f replicaset-definitaion.yml
+# kubectl get replicaset
+# kubectl get pods
+# kubectl replace -f replicaset-definitation.yml
+# kubectl scale --replicas=6 -f  replicaset-definitation.yml
+# kubectl scale --replicas=6 replicaset myapp-replicaset
+
+# To delete the replicaset plus pods
+# kubectl get pods
+# kubectl delete pod <full_pod_name>
+# kubectl get replicaset
+# kubectl delete replicaset myapp-replicaset
+
+# To edit an already existing replicaset we can use the edit command
+# kubectl edit replicaset myapp-replicaset
+# kubectl scale replicaset myapp-replicaset --replicas=2
+
+
