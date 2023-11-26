@@ -5,30 +5,31 @@ metadata:
 spec:
   hosts:
   - ssh:
-      address: 172.31.7.138
+      address: ec2-51-112-18-14.me-central-1.compute.amazonaws.com
       user: ubuntu
-      port: 22
-      keyPath: ~/.ssh/id_rsa
+      #port: 22
+      keyPath: /home/ubuntu/.ssh/id_rsa
     role: manager
   - ssh:
-      address: 172.31.9.50
+      address: ec2-3-29-70-34.me-central-1.compute.amazonaws.com
       user: ubuntu
       port: 22
-      keyPath: ~/.ssh/id_rsa
+      keyPath: /home/ubuntu/.ssh/id_rsa
     role: worker
   - ssh:
-      address: 172.31.12.84
+      address: ec2-3-28-93-144.me-central-1.compute.amazonaws.com
       user: ubuntu
       port: 22
-      keyPath: ~/.ssh/id_rsa
+      keyPath: /home/ubuntu/.ssh/id_rsa
     role: worker
   mke:
     version: 3.7.2
     installFlags:
-    - --pod-cidr="10.0.0.0/16"
-    - --admin-username=admin
-    - --admin-password=Timeline
+    - --default-node-orchestrator=kubernetes
+    - --pod-cidr 10.0.0.0/16
+    - --admin-username admin
+    - --admin-password Timeline
   mcr:
-    version: 20.10.13
+    version: 23.0.8
   cluster:
     prune: false
